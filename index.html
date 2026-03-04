@@ -6,7 +6,7 @@
     <title>永豐銀行 Web3 金流與穩定幣清算架構評估報告</title>
     <style>
         :root {
-            --primary-color: #004D80; /* 永豐企業藍底色系參考 */
+            --primary-color: #004D80; /* 永豐企業藍底色系 */
             --secondary-color: #E6F0F9;
             --text-main: #333333;
             --text-muted: #666666;
@@ -57,11 +57,65 @@
             margin: 20px 0;
             border-radius: 4px;
         }
+        /* 流程圖專用 CSS */
+        .flow-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0 30px 0;
+        }
+        .flow-step {
+            flex: 1;
+            min-width: 180px;
+            background: #f8fbff;
+            border: 1px solid #cce0f0;
+            border-radius: 6px;
+            padding: 15px;
+            position: relative;
+        }
+        .step-num {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            width: 24px;
+            height: 24px;
+            text-align: center;
+            border-radius: 50%;
+            font-weight: bold;
+            line-height: 24px;
+            margin-bottom: 10px;
+        }
+        .step-title {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-size: 1.05em;
+        }
+        .step-desc {
+            font-size: 0.9em;
+            color: var(--text-muted);
+        }
+        /* 數據分析區塊 CSS */
+        .analysis-box {
+            background-color: #fcfcfc;
+            border-left: 4px solid var(--accent-red);
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .analysis-title {
+            color: var(--accent-red);
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
         .conclusion-box {
             background-color: #f0f4f8;
             border: 2px solid var(--primary-color);
             padding: 25px;
-            margin: 30px 0;
+            margin: 40px 0 20px 0;
             border-radius: 8px;
         }
         .conclusion-box h3 {
@@ -105,7 +159,7 @@
 
 <div class="container">
     <h1>永豐銀行：Web3 穩定幣清算與數位資產託管架構評估報告</h1>
-    <p><strong>提案目標：</strong>建立具備高合規性、即時清算能力之法幣與穩定幣雙向轉換通道，為未來 B2B 供應鏈跨境支付與機構級數位資產託管預作準備。</p>
+    <p><strong>提案目標：</strong>建立具備高合規性、即時清算能力之法幣與穩定幣雙向轉換通道，為未來 B2C 數位資產服務與 B2B 跨境支付預作準備。</p>
 
     <h2>一、 核心痛點：打破跨國電匯的物理延遲</h2>
     <p>傳統透過 SWIFT 系統匯款至美國 Circle 帳戶需 1-3 個工作天，無法達成客戶端「即時鑄造 USDC」的體感需求。為實現即時結算，必須採用<strong>資金池（Pre-funding）架構</strong>。</p>
@@ -113,22 +167,66 @@
         <strong>破局策略：</strong>永豐需在海外分行（如洛杉磯分行）預先建置具備充足流動性的美元資金池，並接入美國即時支付網路（RTP/FedNow）。當客戶在網銀發起兌換，系統即時扣除本地法幣，並由海外分行同步呼叫 Circle Mint API 撥款鑄造，實現秒級到帳。
     </div>
 
-    <h2>二、 商業模式選型比較：一級市場直連 vs. 二級市場代理</h2>
-    <p>評估台灣本地合規與長遠營運風險，對比兩種主流底層流動性架構：</p>
+    <h2>二、 商業模式選型比較與操作流程圖</h2>
+    <p>評估台灣本地合規與長遠營運風險，對比兩種主流底層流動性架構之實際運作流程：</p>
+
+    <h3>📌 方式一：結合海外分行運作（Circle Mint 原廠鑄造模式）- <span style="color:var(--accent-green);">建議採納</span></h3>
+    <div class="flow-container">
+        <div class="flow-step">
+            <span class="step-num">1</span>
+            <div class="step-title">發起需求</div>
+            <div class="step-desc">台灣客戶於永豐網銀提出以法幣(台幣/美金)兌換 USDC 需求。</div>
+        </div>
+        <div class="flow-step">
+            <span class="step-num">2</span>
+            <div class="step-title">海外分行觸發</div>
+            <div class="step-desc">永豐透過洛杉磯分行預儲資金池，即時將等值美金轉入 Circle。</div>
+        </div>
+        <div class="flow-step">
+            <span class="step-num">3</span>
+            <div class="step-title">即時鑄造</div>
+            <div class="step-desc">Circle 系統確認到帳，透過 API 即時 Mint (鑄造) 等量 USDC。</div>
+        </div>
+        <div class="flow-step">
+            <span class="step-num">4</span>
+            <div class="step-title">鏈上撥款與到帳</div>
+            <div class="step-desc">Circle 將 USDC 打入永豐託管錢包，客戶網銀即時顯示餘額增加。</div>
+        </div>
+    </div>
+
+    <h3>📌 方式二：在台灣找交易上手（本地 VASP 合作模式）- <span style="color:var(--accent-red);">具對手方風險</span></h3>
+    <div class="flow-container">
+        <div class="flow-step">
+            <span class="step-num">1</span>
+            <div class="step-title">發起需求</div>
+            <div class="step-desc">台灣客戶於永豐網銀提出以法幣兌換 USDC 需求。</div>
+        </div>
+        <div class="flow-step">
+            <span class="step-num">2</span>
+            <div class="step-title">API 搓合確認</div>
+            <div class="step-desc">永豐系統即時向配合之台灣在地交易所(如 MAX) 發送買單 API。</div>
+        </div>
+        <div class="flow-step">
+            <span class="step-num">3</span>
+            <div class="step-title">依約定比例轉換</div>
+            <div class="step-desc">交易所依當下二級市場深度搓合(可能產生滑價)，準備撥款。</div>
+        </div>
+        <div class="flow-step">
+            <span class="step-num">4</span>
+            <div class="step-title">鏈上提幣與到帳</div>
+            <div class="step-desc">交易所將 USDC 轉入永豐開立之錢包地址，客戶收到到帳通知。</div>
+        </div>
+    </div>
+
     <table>
         <thead>
             <tr>
                 <th>評估維度</th>
-                <th>方式一：永豐海外分行直連 Circle Mint (建議採納)</th>
+                <th>方式一：海外分行直連 Circle Mint</th>
                 <th>方式二：串接台灣在地交易所 API</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td><strong>運作機制</strong></td>
-                <td>洛杉磯分行透過資金池即時向 Circle 原廠鑄造 USDC</td>
-                <td>向本地 VASP (如 MAX) 購買二級市場的 USDC</td>
-            </tr>
             <tr>
                 <td><strong>匯率與滑價</strong></td>
                 <td>完美 1:1 剛性兌換，無滑價風險</td>
@@ -136,27 +234,31 @@
             </tr>
             <tr>
                 <td><strong>對手方風險</strong></td>
-                <td><strong>極低</strong> (風險限於永豐內部調度與 Circle 系統)</td>
-                <td><strong>極高</strong> (高度依賴本地交易所的營運狀況與流動性)</td>
+                <td><strong>極低</strong> (風險限於永豐內部調度與發行商)</td>
+                <td><strong>極高</strong> (高度依賴本地交易所的營運狀況)</td>
             </tr>
             <tr>
-                <td><strong>監管合規性</strong></td>
-                <td>高。符合金管會「風險隔離」與銀行本業內控標準</td>
-                <td>低。過度依賴資本額較低的外部 VASP，具商譽隱患</td>
+                <td><strong>獲利來源</strong></td>
+                <td>換匯利差、API 通道費、美元資金池孳息</td>
+                <td>API 平台服務費、交易所手續費退傭(Rebate)</td>
+            </tr>
+            <tr>
+                <td><strong>交易成本</strong></td>
+                <td>美國境內清算網路費、區塊鏈礦工費</td>
+                <td>交易所二級市場手續費、鏈上提幣費(轉嫁客戶)</td>
             </tr>
         </tbody>
     </table>
 
     <h2>三、 產品策略：「雙軌制」穩定幣收付通道</h2>
-    <p>為兼顧「法遵防火牆」與「最大化商業流量」，本提案建議採取 <strong>USDC 守法幣大門、USDT 衝市場流量</strong> 的產品策略：</p>
+    <p>為兼顧「法遵防火牆」與「最大化商業流量」，本提案建議採取 <strong>USDC 守法幣大門、USDT 衝市場流量</strong> 的策略：</p>
     <ul>
-        <li><strong>法幣出入金 (Fiat Ramp)：</strong> 僅限 <strong>USDC</strong>。藉由 USDC 高度的透明度與美國合規性，保護永豐的傳統美元清算行關係，阻絕洗錢風險。</li>
-        <li><strong>幣幣收付與託管 (Custody)：</strong> 同時支援 <strong>USDC 與 USDT</strong>。吸收市場近 60% 佔比的 USDT 龐大資金沉澱，賺取手續費與託管費。</li>
-        <li><strong>關鍵基礎建設配套：</strong> 網銀後台需導入 <strong>KYT (鏈上地址追蹤)</strong> 工具審查 USDT 來源，並內建 <strong>OTC 閃兌 API (USDT ↔ USDC)</strong>，消弭客戶出金時的轉換摩擦。</li>
+        <li><strong>法幣出入金 (Fiat Ramp)：</strong> 僅限 <strong>USDC</strong>。藉由 USDC 的高度透明與合規性，保護永豐美元清算行關係，阻絕洗錢風險。</li>
+        <li><strong>幣幣收付與託管 (Custody)：</strong> 同時支援 <strong>USDC 與 USDT</strong>。吸收市場龐大的 USDT 資金沉澱，賺取手續費與託管費。</li>
+        <li><strong>關鍵配套：</strong> 後台導入 KYT (鏈上地址追蹤) 工具，並內建 <strong>OTC 閃兌 API (USDT ↔ USDC)</strong> 消弭出金轉換摩擦。</li>
     </ul>
 
     <h2>四、 USDC 與 USDT 歷年宏觀數據與流動性分析 (2022 - 2026初)</h2>
-    <p>以下數據印證本提案之選型邏輯：USDT 屬「價值儲存 (囤積)」，而 USDC 才是真正的「B2B 清算媒介」。</p>
     <table>
         <thead>
             <tr>
@@ -223,12 +325,24 @@
         </tbody>
     </table>
 
+    <div class="analysis-box">
+        <div class="analysis-title">📊 關鍵數據洞察與戰略分析</div>
+        <p><strong>1. 市值與清算動能的結構性背離：</strong><br>
+        截至 2026 年初，USDC 的市值（約 760 億美元）雖不到 USDT（約 1,870 億美元）的一半，但其鏈上結算交易量（47.6 兆美元）卻逼近 USDT 的三倍。這強烈暗示 USDT 主要被市場作為「價值囤積與資產停泊」的工具，而 USDC 已經實質成為全球 Web3 與傳統金融交界的「B2B/B2C 清算高速公路」。</p>
+        
+        <p><strong>2. 流動周轉率揭示真實商業價值：</strong><br>
+        高達 626 次的年流動周轉率，證明 USDC 被高度應用於頻繁的合約交互與企業結算中。若永豐欲切入法幣與數位資產的即時兌換（Fiat-ramp），選擇周轉率極高且具備 1:1 剛性兌付機制的 USDC 作為底層結算通道，能大幅降低銀行的流動性管理成本與市場風險。</p>
+
+        <p><strong>3. 壓力測試後的合規護城河：</strong><br>
+        2023 年的 SVB 事件促使 Circle 將儲備資產移轉至具備全球系統重要性的金融機構（如 BNY Mellon），並成為首批符合歐盟 MiCA 法規的穩定幣。相較於 USDT 龐大但缺乏四大審計的國債儲備，綁定 USDC 兌換法幣，能有效防禦洗錢與脫鉤風險，符合銀行業嚴謹的內控法遵要求。</p>
+    </div>
+
     <div class="conclusion-box">
         <h3>五、 創新提案小結：永豐的 Web3 戰略定錨</h3>
         <ul>
             <li><strong>擁抱一級市場，拒絕代理風險：</strong> 捨棄過度依賴本地交易所的捷徑，透過海外分行直連 Circle，將流動性調度與清算權 100% 掌握在銀行內部，這是符合金管會高標法遵、具備長期擴充性的唯一正途。</li>
-            <li><strong>雙軌制精準打擊，兼顧合規與利潤：</strong> 以高度合規的 USDC 作為「法幣出入金防護罩」阻絕洗錢風險；同時開放 USDT 幣幣收付，吸收全球最大穩定幣的龐大資金沉澱，賺取手續費與託管收益。</li>
-            <li><strong>數據賦能 B2B 轉型：</strong> 數據證明，USDC 高達 600 次以上的年周轉率，已成為全球企業跨境清算的最佳載體。及早建置此底層架構，將使永豐在未來的 Web3 供應鏈金融、以及 RWA（真實資產代幣化）的浪潮中，掌握發動業務的主動權。</li>
+            <li><strong>雙軌制精準打擊，兼顧合規與利潤：</strong> 以高度合規的 USDC 作為「法幣出入金防護罩」；同時開放 USDT 幣幣收付，吸收全球最大穩定幣的龐大資金沉澱，賺取手續費與託管收益。</li>
+            <li><strong>數據賦能轉型：</strong> 掌握高周轉率的 USDC 結算通道，將使永豐在未來無論是擴展個人端前沿應用，或是 B2B 供應鏈跨境支付時，都能擁有「要不要做」的絕對戰略主動權。</li>
         </ul>
     </div>
 
