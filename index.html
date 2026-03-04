@@ -1,8 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>永豐銀行 Web3 金流與穩定幣清算架構評估報告</title>
     <style>
         :root {
@@ -278,4 +274,102 @@
         <div class="flow-step"><span class="step-num">1</span><div class="step-title">發起需求</div><div class="step-desc">客戶於永豐提出法幣兌換 USDC 需求。</div></div>
         <div class="flow-step"><span class="step-num">2</span><div class="step-title">API 搓合</div><div class="step-desc">系統向台灣在地交易所發送買單 API。</div></div>
         <div class="flow-step"><span class="step-num">3</span><div class="step-title">二級市場轉換</div><div class="step-desc">交易所依當下深度搓合(可能產生滑價)。</div></div>
-        <div class="flow-step">
+        <div class="flow-step"><span class="step-num">4</span><div class="step-title">到帳</div><div class="step-desc">交易所將 USDC 提幣轉入永豐錢包地址。</div></div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>評估維度</th>
+                <th>方式一：海外分行直連 Circle Mint</th>
+                <th>方式二：串接台灣在地交易所 API</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>對手方風險</strong></td>
+                <td><strong>極低</strong> (風險限於永豐內部調度與發行商)</td>
+                <td><strong>極高</strong> (高度依賴本地交易所營運狀況，金管會疑慮深)</td>
+            </tr>
+            <tr>
+                <td><strong>獲利來源</strong></td>
+                <td>換匯利差、API 通道費、美元資金池孳息</td>
+                <td>API 平台服務費、交易所手續費退傭(Rebate)</td>
+            </tr>
+            <tr>
+                <td><strong>交易成本</strong></td>
+                <td>美國境內清算網路費、區塊鏈礦工費</td>
+                <td>交易所二級市場手續費、鏈上提幣費(轉嫁客戶)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>三、 產品策略：「雙軌制」穩定幣收付通道</h2>
+    <p>為兼顧「法遵防火牆」與「最大化商業流量」，本提案建議採取 <strong>USDC 守法幣大門、USDT 衝市場流量</strong> 的策略：</p>
+    <ul>
+        <li><strong>法幣出入金 (Fiat Ramp)：</strong> 僅限 <strong>USDC</strong>。藉由 USDC 高透明度，保護永豐美元清算行關係，阻絕洗錢風險。</li>
+        <li><strong>幣幣收付與託管 (Custody)：</strong> 同時支援 <strong>USDC 與 USDT</strong>。吸收市場龐大的 USDT 資金沉澱，賺取手續費與託管費。</li>
+        <li><strong>關鍵配套：</strong> 網銀後台內建 <strong>OTC 閃兌 API (USDT ↔ USDC)</strong> 消弭出金轉換摩擦，並全面導入 KYT 工具。</li>
+    </ul>
+
+    <h2>四、 USDC 與 USDT 歷年數據與流動性分析 (2022 - 2026初)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>年份</th>
+                <th>評估指標</th>
+                <th>Tether (USDT)</th>
+                <th>Circle (USDC)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td rowspan="2"><strong>2024年</strong></td>
+                <td>年底發幣量 (市值)</td>
+                <td>約 1,387 億美元</td>
+                <td>約 436 億美元</td>
+            </tr>
+            <tr>
+                <td>流動周轉率 (次/年)</td>
+                <td>約 144 次</td>
+                <td class="data-highlight">約 367 次</td>
+            </tr>
+            <tr>
+                <td rowspan="3"><strong>2025年-<br>2026年初</strong></td>
+                <td>最新發幣量 (市值)</td>
+                <td>約 1,870 億美元</td>
+                <td>約 760 億美元</td>
+            </tr>
+            <tr>
+                <td>全年鏈上交易量</td>
+                <td>約 17.6 兆美元</td>
+                <td class="data-highlight">約 47.6 兆美元</td>
+            </tr>
+            <tr>
+                <td><strong>流動周轉率 (次/年)</strong></td>
+                <td><strong>約 94 次</strong></td>
+                <td class="data-highlight">約 626 次 (清算動能極強)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="analysis-box">
+        <div class="analysis-title">📊 關鍵數據洞察與戰略分析</div>
+        <p><strong>1. 市值與清算動能的結構性背離：</strong> 截至 2026 年初，USDC 鏈上結算交易量（47.6 兆美元）逼近 USDT 的三倍。強烈暗示 USDT 主要為「價值囤積」，而 USDC 已實質成為「清算媒介」。</p>
+        <p><strong>2. 高周轉率揭示 B2B 商業價值：</strong> 626 次的年流動周轉率證明 USDC 被高度應用於企業結算。選擇具備剛性兌付機制的 USDC 作為底層結算通道，能大幅降低銀行的流動性管理成本。</p>
+        <p><strong>3. 壓力測試後的合規護城河：</strong> SVB 事件後 Circle 重組儲備資產至全球系統重要性銀行（如 BNY Mellon），並符合歐盟 MiCA 法規。綁定 USDC 兌換法幣，符合傳統銀行嚴謹的內控要求。</p>
+    </div>
+
+    <div class="conclusion-box">
+        <h3>五、 創新提案小結：永豐的 Web3 戰略定錨</h3>
+        <ul>
+            <li><strong>直視技術極限，精準打擊痛點：</strong> 區塊鏈並非逃避監管的工具，而是「優化傳輸效率」的基礎建設。保留傳統金融嚴謹的 KYT/AML 審查，僅替換掉缺乏效率的中轉行節點，這才是銀行業最務實的切入點。</li>
+            <li><strong>擁抱一級市場，拒絕代理風險：</strong> 捨棄過度依賴本地交易所的捷徑，透過海外分行直連 Circle，將清算權 100% 掌握在銀行內部，符合金管會高標法遵要求。</li>
+            <li><strong>雙軌制兼顧合規與利潤：</strong> 以高度合規的 USDC 作為「法幣出入金防護罩」；同時開放 USDT 幣幣託管，吸收龐大資金沉澱，奠定未來穩定幣資產管理的基石。</li>
+        </ul>
+    </div>
+
+</div>
+
+</body>
+</html>
